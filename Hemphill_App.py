@@ -1,22 +1,15 @@
-# Hemphill_App.py (Lanzador con Popup Aislado)
-
-# ===================================================================================
-# Hemphill.py (LANZADOR PRINCIPAL - VERSIÓN DE PRODUCCIÓN)
-# Este es el archivo que se debe ejecutar.
-# Muestra el pop-up de apoyo y luego lanza la aplicación principal.
-# ===================================================================================
+# Hemphill_App.py (Lanzador Principal - Versión Corregida)
 
 import sys
 import os
 import traceback
 
-# Añadir la carpeta actual al path
+# Añadir la carpeta actual al path para asegurar que los módulos locales se encuentren.
 script_dir = os.path.dirname(os.path.abspath(__file__))
 if script_dir not in sys.path:
     sys.path.insert(0, script_dir)
 
 try:
-    # Importar las funciones y clases necesarias
     from popapp import show_coffee_popup
     from app_logic import HemphillApp
 except ImportError as e:
@@ -27,16 +20,22 @@ except ImportError as e:
 
 if __name__ == "__main__":
     try:
-        # --- NUEVA LÓGICA DE INICIO SIMPLIFICADA ---
+        # 1. Crear la aplicación principal (la raíz única de Tkinter)
+        app = HemphillApp()
+        # 2. Ocultarla temporalmente para que solo se vea el popup
+        app.withdraw()
 
-        # 1. Mostrar el pop-up de apoyo PRIMERO.
-        #    Esta función ahora maneja su propio bucle de Tkinter y bloquea la ejecución.
+        # 3. Mostrar el popup. La ejecución del código se pausará aquí
+        #    hasta que el popup sea cerrado por el usuario.
+        #    Le pasamos 'app' como su ventana "madre".
         print("Mostrando pop-up de apoyo...")
-        show_coffee_popup()
+        show_coffee_popup(app)
         print("Pop-up cerrado. Iniciando aplicación principal...")
 
-        # 2. SOLO DESPUÉS de que el popup se cierre, crear e iniciar la aplicación principal.
-        app = HemphillApp()
+        # 4. Una vez que el popup se cierra, mostramos la ventana principal
+        app.deiconify()
+        
+        # 5. Iniciar el único y principal mainloop
         app.mainloop()
         
     except Exception as e:
